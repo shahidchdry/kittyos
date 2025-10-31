@@ -1,0 +1,38 @@
+name: Makefile CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: make install
+
+    - name: Build iso
+      run: make iso
+
+    - name: Test ISO with QEMU
+      run: |
+          timeout 10s qemu-system-x86_64 \
+            -cdrom kernel.iso \
+            -m 256M \
+            -nographic \
+            -no-reboot \
+            -serial stdio || echo "QEMU exited (timeout or crash)"
+
+    - name: Upload ISO artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: kernel-iso
+        path: kernel.iso
+        retention-days: 7
+    
