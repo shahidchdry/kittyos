@@ -16,7 +16,7 @@ install:
 	sudo apt update
 	sudo apt install -y grub-common grub-pc-bin xorriso mtools qemu-system-x86 wget tar
 	@echo ">>> Downloading and installing latest Zig..."
-	sudo snap install zig --classic
+	sudo snap install zig --classic --beta
 	@echo ">>> Zig version:"
 	@zig version
 	@echo ">>> Cleaning up install files..."
