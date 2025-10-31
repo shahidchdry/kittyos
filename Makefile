@@ -16,12 +16,10 @@ install:
 	sudo apt update
 	sudo apt install -y grub-common grub-pc-bin xorriso mtools qemu-system-x86 wget tar
 	@echo ">>> Downloading and installing latest Zig..."
-	@wget https://ziglang.org/download/index.json -O zig_releases.json
-	LATEST_URL=$$(grep -oP '(?<=x86_64-linux": ")[^"]+' zig_releases.json | head -n 1) && \
-	wget $$LATEST_URL -O zig.tar.xz && \
-	tar -xf zig.tar.xz && \
-	sudo mv zig-linux-x86_64-* $(ZIG_DIR) && \
-	sudo ln -sf $(ZIG_BIN) /usr/local/bin/zig
+	ZIG_VERSION=$(curl -s "https://api.github.com/repos/ziglang/zig/releases/latest" | grep -Po '"tag_name": "\K[0-9.]+') && \
+	wget -qO zig.tar.xz https://ziglang.org/download/${ZIG_VERSION}/zig-x86_64-linux-${ZIG_VERSION}.tar.xz && \
+	sudo mkdir -p /opt/zig && \
+	sudo tar xf zig.tar.xz --strip-components=1 -C /opt/zig
 	@echo ">>> Zig version:"
 	@zig version
 	@echo ">>> Cleaning up install files..."
