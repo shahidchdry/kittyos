@@ -25,27 +25,4 @@ pub fn build(b: *std.Build) !void {
     });
     kernel.setLinkerScript(b.path("linker.ld"));
     b.installArtifact(kernel);
-
-    const make_dirs = b.addSystemCommand(&[_][]const u8{
-        "mkdir", "-p", "iso/boot/grub",
-    });
-    
-    const copy_kernel = b.addSystemCommand(&[_][]const u8{
-        "cp", "zig-out/bin/kernel.elf", "iso/boot/kernel.elf",
-    });
-    copy_kernel.step.dependOn(&make_dirs.step);
-    
-    const copy_grub_cfg = b.addSystemCommand(&[_][]const u8{
-        "cp", "grub.cfg", "iso/boot/grub/grub.cfg",
-    });
-    copy_grub_cfg.step.dependOn(&copy_kernel.step);
-    
-    const make_iso = b.addSystemCommand(&[_][]const u8{
-        "grub-mkrescue", "-o", "kernel.iso", "iso",
-    });
-    make_iso.step.dependOn(&copy_grub_cfg.step);
-    make_iso.step.dependOn(&kernel.step);
-    
-    b.step("iso", "Build bootable ISO").dependOn(&make_iso.step);
-    
 }
