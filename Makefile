@@ -6,6 +6,18 @@ QEMU_CMD = qemu-system-x86_64 -cdrom $(KERNEL_ISO_NAME)
 
 all: iso
 
+install:
+	sudo apt update
+	sudo apt install -y grub-common grub-pc-bin xorriso mtools qemu-system-x86 wget tar
+	wget https://ziglang.org/download/index.json -O zig_releases.json
+	LATEST_URL=$(grep -oP '(?<=x86_64-linux": ")[^"]+' zig_releases.json | head -n 1)
+	wget $LATEST_URL -O zig.tar.xz
+	tar -xf zig.tar.xz
+	sudo mv zig-* /usr/local/zig
+	sudo ln -s /usr/local/zig/zig /usr/local/bin/zig
+	zig version
+	
+
 build:
 	@echo ">>> 1. Building x86 kernel.elf..."
 	@zig build
