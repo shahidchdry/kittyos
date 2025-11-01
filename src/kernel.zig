@@ -32,7 +32,7 @@ export fn _start() callconv(.naked) noreturn {
 
 noinline fn kernel_main() callconv(.c) noreturn {
 	for (0..200) |_| {
-		console.printStd("KittyOS   ")
+		console.printStd("KittyOS   ");
 	}
     console.printStd("KittyOS : Operating System written in Zig from scratch!\n\nKernelTest");
     while (true) {
