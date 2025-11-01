@@ -2,14 +2,9 @@ KERNEL_ELF_PATH = zig-out/bin/kernel.elf
 KERNEL_ISO_NAME = kernel.iso
 QEMU_CMD        = qemu-system-x86_64 -cdrom $(KERNEL_ISO_NAME)
 
-ZIG_SOURCES = $(shell find src -type f -name '*.zig')
+.PHONY: all install run run-vnc clean
 
-ZIG_DIR = /usr/local/zig
-ZIG_BIN = $(ZIG_DIR)/zig
-
-.PHONY: all install run run-vnc clean uninstall
-
-all: $(KERNEL_ISO_NAME)
+all: build iso
 
 install:
 	@echo ">>> Installing dependencies..."
@@ -19,14 +14,12 @@ install:
 	sudo snap install zig --classic --beta
 	@echo ">>> Zig version:"
 	@zig version
-	@echo ">>> Cleaning up install files..."
-	@rm -f zig_releases.json zig.tar.xz
 
-$(KERNEL_ELF_PATH): $(ZIG_SOURCES) build.zig
+build:
 	@echo ">>> 1. Building x86 kernel.elf..."
 	@zig build
 
-$(KERNEL_ISO_NAME): $(KERNEL_ELF_PATH) grub.cfg
+iso:
 	@echo ">>> 2. Creating bootable x86 $(KERNEL_ISO_NAME)..."
 	@mkdir -p iso/boot/grub
 	@cp $(KERNEL_ELF_PATH) iso/boot/kernel.elf
@@ -34,11 +27,11 @@ $(KERNEL_ISO_NAME): $(KERNEL_ELF_PATH) grub.cfg
 	@grub-mkrescue -o $(KERNEL_ISO_NAME) iso
 	@echo ">>> Successfully created $(KERNEL_ISO_NAME)"
 
-run: $(KERNEL_ISO_NAME)
+run:
 	@echo ">>> 3. Booting $(KERNEL_ISO_NAME) with QEMU (x86)..."
 	@$(QEMU_CMD)
 
-run-vnc: $(KERNEL_ISO_NAME)
+run-vnc:
 	@echo ">>> 3. Booting $(KERNEL_ISO_NAME) with QEMU (x86) on VNC..."
 	@$(QEMU_CMD) -vga std -display vnc=:0
 

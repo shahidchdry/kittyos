@@ -1,3 +1,5 @@
+const console = @import("libmeow/console.zig");
+
 const MB_HEADER_MAGIC = 0x1BADB002;
 const MB_FLAG_ALIGN = 1 << 0;
 const MB_FLAG_MEMINFO = 1 << 1;
@@ -29,11 +31,10 @@ export fn _start() callconv(.naked) noreturn {
 }
 
 noinline fn kernel_main() callconv(.c) noreturn {
-    const VGA: [*]volatile u16 = @ptrFromInt(0xb8000);
-
-    VGA[0] = 0x0F00 | 'K';
-    VGA[1] = 0x0F00 | 'T';
-
+	for (0..200) |_| {
+		console.printStd("KittyOS   ")
+	}
+    console.printStd("KittyOS : Operating System written in Zig from scratch!\n\nKernelTest");
     while (true) {
     	asm volatile ("hlt");
     }
