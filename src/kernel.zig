@@ -1,3 +1,4 @@
+const gdt = @import("kernel/gdt.zig");
 const console = @import("libmeow/console.zig");
 
 const MB_HEADER_MAGIC = 0x1BADB002;
@@ -31,6 +32,7 @@ export fn _start() callconv(.naked) noreturn {
 }
 
 noinline fn kernel_main() callconv(.c) noreturn {
+	gdt.init();
 	for (0..200) |_| {
 		console.printStd("KittyOS   ");
 	}
