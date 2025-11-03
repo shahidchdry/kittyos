@@ -42,7 +42,7 @@ const exception_messages = [_][]const u8{
 };
 
 pub fn handler(reg: *int.Register) void {
-	console.printStd("\nReceived interrupt no : ");
+	console.printStd("\nReceived Interrupt : ");
 	console.printStd(exception_messages[reg.int_no]);
 }
 

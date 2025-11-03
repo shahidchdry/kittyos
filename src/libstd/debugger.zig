@@ -26,13 +26,13 @@ fn isTransmitEmpty() u8 {
     return x86.in(u8, PORT + 5) & 0x20;
 }
 
-fn putChar(char: u8) void {
+export fn logChar(char: u8) void {
     while (isTransmitEmpty() == 0) {}
     x86.out(PORT, char);
 }
 
 pub fn log(str: []const u8) void {
     for (str) |char| {
-        putChar(char);
+        logChar(char);
     }
 }

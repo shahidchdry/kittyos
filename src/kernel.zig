@@ -46,14 +46,16 @@ noinline fn kernel_main() callconv(.c) noreturn {
 	irq.init();
 	debugger.log("Initializing idt...\r\n");
 	idt.init();
+	debugger.log("Initialization finished\r\n");
 	
-	//interrupt test
 	asm volatile(
-		\\int $2
-		\\int $3
+		\\ int $0x2
 	);
+	debugger.log("Interrupt test completed\r\n");
 	
     console.printStd("KittyOS : Operating System written in Zig from scratch!\n\nKernelTest");
+    debugger.log("Console test completed\r\n");
+    
     while (true) {
     	asm volatile ("hlt");
     }

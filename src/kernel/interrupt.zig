@@ -3,6 +3,7 @@ const irq = @import("irq.zig");
 
 pub const InterruptHandler = fn () callconv(.naked) void;
 pub const servicer = *fn (*Register) void;
+//export const logChar = debugger.logChar;
 
 pub const Register = packed struct {
     ds: u32, // Data segment selector
@@ -39,30 +40,32 @@ export fn handler(reg: *Register) void {
 
 export fn commonStub() callconv(.naked) void {
 	asm volatile (
-		\\push %%eax
-        \\push %%ecx
-        \\push %%edx
-        \\push %%ebx
-        \\push %%esp
-        \\push %%ebp
-        \\push %%esi
-        \\push %%edi
-        \\push %%ds
-        \\mov $0x10, %%bx
-        \\mov %%bx, %%ds
-        \\call  handler
-        \\pop %%ds
-        \\pop %%edi
-        \\pop %%esi
-        \\pop %%ebp
-        \\pop %%esp
-        \\pop %%ebx
-        \\pop %%edx
-        \\pop %%ecx
-        \\pop %%eax
-        \\add $8, %%esp
-        \\sti
-        \\iret
+		\\ push %%eax
+        \\ push %%ecx
+        \\ push %%edx
+        \\ push %%ebx
+        \\ push %%esp
+        \\ push %%ebp
+        \\ push %%esi
+        \\ push %%edi
+        \\ push %%ds
+        \\ mov $0x10, %%bx
+        \\ mov %%bx, %%ds
+        \\ push %%esp
+        \\ call handler
+        \\ pop %%esp
+        \\ pop %%ds
+        \\ pop %%edi
+        \\ pop %%esi
+        \\ pop %%ebp
+        \\ pop %%esp
+        \\ pop %%ebx
+        \\ pop %%edx
+        \\ pop %%ecx
+        \\ pop %%eax
+        \\ add $8, %%esp
+        \\ sti
+        \\ iret
     );
 }
 
@@ -74,7 +77,7 @@ pub fn getInterruptStub(int_no: u32) InterruptHandler {
 	        );
 	        if (int_no != 8 and !(int_no >= 10 and int_no <= 14) and int_no != 17) {
 	        	asm volatile (
-	            	\\ pushl $0
+	            	\\ push $0
 	            );
 	        }
 	    	asm volatile (
