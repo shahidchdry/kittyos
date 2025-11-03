@@ -1,6 +1,6 @@
 const std = @import("std");
 
-const GdtEntry = packed struct {
+const GDTEntry = packed struct {
     lim0_15: u16,
     base0_15: u16,
     base16_23: u8,
@@ -10,12 +10,12 @@ const GdtEntry = packed struct {
     base24_31: u8,
 };
 
-const GdtPtr = packed struct {
+const GDTPtr = packed struct {
     limit: u16,
     base: u32,
 };
 
-const Tss = packed struct {
+const TSS = packed struct {
     previous_task: u16,
     reserved1: u16,
 
@@ -65,12 +65,13 @@ const Tss = packed struct {
 
 
 const NUMBER_OF_ENTRIES: u16 = 0x06;
-const TABLE_SIZE: u16 = @sizeOf(GdtEntry) * NUMBER_OF_ENTRIES - 1;
-pub const KERNEL_DATA_OFFSET: u16 = 0x10;
+const TABLE_SIZE: u16 = @sizeOf(GDTEntry) * NUMBER_OF_ENTRIES - 1;
+pub const KERNEL_CODE_OFFSET: u16 = 0x08;
+const KERNEL_DATA_OFFSET: u16 = 0x10;
 const TSS_OFFSET: u16 = 0x28;
 
 
-fn initGdtDesc(base: u32, limit: u32, access: u8, flags: u8, gdt_entry: *GdtEntry) void {
+fn initGDTDesc(base: u32, limit: u32, access: u8, flags: u8, gdt_entry: *GDTEntry) void {
 	gdt_entry.lim0_15 = @as(u16, @intCast(limit & 0xFFFF));
 	gdt_entry.base0_15 = @as(u16, @intCast(base & 0xFFFF));
 	gdt_entry.base16_23 = @as(u8, @intCast((base >> 16) & 0xFF));
@@ -80,32 +81,33 @@ fn initGdtDesc(base: u32, limit: u32, access: u8, flags: u8, gdt_entry: *GdtEntr
 	gdt_entry.base24_31 = @as(u8, @intCast((base >> 24) & 0xFF));
 }
 
-var tss = std.mem.zeroes(Tss);
-var gdt_desc_table: [NUMBER_OF_ENTRIES]GdtEntry = undefined;
+pub var tss = std.mem.zeroes(TSS);
+var gdt_desc_table: [NUMBER_OF_ENTRIES]GDTEntry = undefined;
+var gdt_ptr = GDTPtr{
+	.limit = TABLE_SIZE,
+	.base = undefined,
+};
 
 pub fn init() void {
 	tss.debug_flag = 0x00;
-	tss.io_map = @sizeOf(Tss);
+	tss.io_map = @sizeOf(TSS);
 	tss.esp0 = 0x1FFF0;
 	tss.ss0 = KERNEL_DATA_OFFSET;
 
 	// Null
-	initGdtDesc(0x0, 0x0, 0x0, 0x0, &gdt_desc_table[0]);
+	initGDTDesc(0x0, 0x0, 0x0, 0x0, &gdt_desc_table[0]);
 	// Kernel code
-	initGdtDesc(0x0, 0xFFFFF, 0x9B, 0x0D, &gdt_desc_table[1]);
+	initGDTDesc(0x0, 0xFFFFF, 0x9B, 0x0D, &gdt_desc_table[1]);
 	// Kernel data
-	initGdtDesc(0x0, 0xFFFFF, 0x93, 0x0D, &gdt_desc_table[2]);
+	initGDTDesc(0x0, 0xFFFFF, 0x93, 0x0D, &gdt_desc_table[2]);
 	// User code
-	initGdtDesc(0x0, 0xFFFFF, 0xFF, 0x0D, &gdt_desc_table[3]);
+	initGDTDesc(0x0, 0xFFFFF, 0xFF, 0x0D, &gdt_desc_table[3]);
 	// User data
-	initGdtDesc(0x0, 0xFFFFF, 0xF3, 0x0D, &gdt_desc_table[4]);
+	initGDTDesc(0x0, 0xFFFFF, 0xF3, 0x0D, &gdt_desc_table[4]);
 	// Tss
-	initGdtDesc( @as(u32, @intFromPtr(&tss)), 0x67, 0x89, 0x00, &gdt_desc_table[5]);
+	initGDTDesc( @as(u32, @intFromPtr(&tss)), 0x67, 0x89, 0x00, &gdt_desc_table[5]);
 
-	const gdt_ptr: GdtPtr = GdtPtr{
-		.limit = TABLE_SIZE,
-		.base = @as(u32, @intFromPtr(&gdt_desc_table[0])),
-	};
+	gdt_ptr.base = @as(u32, @intFromPtr(&gdt_desc_table[0]));
 
 	asm volatile ("lgdt (%%eax)"
 	    :

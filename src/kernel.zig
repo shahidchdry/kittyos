@@ -1,5 +1,10 @@
 const gdt = @import("kernel/gdt.zig");
+const idt = @import("kernel/idt.zig");
+const isr = @import("kernel/isr.zig");
+const irq = @import("kernel/irq.zig");
+
 const console = @import("libmeow/console.zig");
+const debugger = @import("libstd/debugger.zig");
 
 const MB_HEADER_MAGIC = 0x1BADB002;
 const MB_FLAG_ALIGN = 1 << 0;
@@ -32,11 +37,25 @@ export fn _start() callconv(.naked) noreturn {
 }
 
 noinline fn kernel_main() callconv(.c) noreturn {
+	debugger.init();
+	debugger.log("Initializing gdt...\r\n");
 	gdt.init();
-	for (0..200) |_| {
-		console.printStd("KittyOS   ");
-	}
+	debugger.log("Initializing isr...\r\n");
+	isr.init();
+	debugger.log("Initializing irq...\r\n");
+	irq.init();
+	debugger.log("Initializing idt...\r\n");
+	idt.init();
+	debugger.log("Initialization finished\r\n");
+	
+	asm volatile(
+		\\ int $0x2
+	);
+	debugger.log("Interrupt test completed\r\n");
+	
     console.printStd("KittyOS : Operating System written in Zig from scratch!\n\nKernelTest");
+    debugger.log("Console test completed\r\n");
+    
     while (true) {
     	asm volatile ("hlt");
     }
