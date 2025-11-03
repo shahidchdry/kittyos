@@ -4,6 +4,7 @@ const isr = @import("kernel/isr.zig");
 const irq = @import("kernel/irq.zig");
 
 const console = @import("libmeow/console.zig");
+const debugger = @import("libstd/debugger.zig");
 
 const MB_HEADER_MAGIC = 0x1BADB002;
 const MB_FLAG_ALIGN = 1 << 0;
@@ -36,13 +37,13 @@ export fn _start() callconv(.naked) noreturn {
 }
 
 noinline fn kernel_main() callconv(.c) noreturn {
-	console.printStd("Initializing gdt...\n");
+	debugger.log("Initializing gdt...\r\n");
 	gdt.init();
-	console.printStd("Initializing isr...\n");
+	debugger.log("Initializing isr...\r\n");
 	isr.init();
-	console.printStd("Initializing irq...\n");
+	debugger.log("Initializing irq...\r\n");
 	irq.init();
-	console.printStd("Initializing idt...\n");
+	debugger.log("Initializing idt...\r\n");
 	idt.init();
 	
 	//interrupt test
