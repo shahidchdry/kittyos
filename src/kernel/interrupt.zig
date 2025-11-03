@@ -39,13 +39,27 @@ export fn handler(reg: *Register) void {
 
 export fn commonStub() callconv(.naked) void {
 	asm volatile (
-        \\pusha
+		\\push %%eax
+        \\push %%ecx
+        \\push %%edx
+        \\push %%ebx
+        \\push %%esp
+        \\push %%ebp
+        \\push %%esi
+        \\push %%edi
         \\push %%ds
         \\mov $0x10, %%bx
         \\mov %%bx, %%ds
         \\call  handler
         \\pop %%ds
-        \\popa
+        \\pop %%edi
+        \\pop %%esi
+        \\pop %%ebp
+        \\pop %%esp
+        \\pop %%ebx
+        \\pop %%edx
+        \\pop %%ecx
+        \\pop %%eax
         \\add $8, %%esp
         \\sti
         \\iret
