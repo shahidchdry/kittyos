@@ -37,6 +37,7 @@ export fn _start() callconv(.naked) noreturn {
 }
 
 noinline fn kernel_main() callconv(.c) noreturn {
+	debugger.init();
 	debugger.log("Initializing gdt...\r\n");
 	gdt.init();
 	debugger.log("Initializing isr...\r\n");

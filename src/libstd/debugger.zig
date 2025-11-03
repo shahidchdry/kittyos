@@ -23,18 +23,18 @@ pub fn init() void {
     x86.out(SERIAL_MODEM_CONTROL_PORT, @as(u8, 0x0B));
 }
 
-fn serial_is_transmit_empty() u8 {
+fn isTransmitEmpty() u8 {
     return x86.in(u8, SERIAL_LINE_STATUS_PORT) & 0x20;
 }
 
-fn put_char(char: u8) void {
-    while (serial_is_transmit_empty() == 0) {
+fn putChar(char: u8) void {
+    while (isTransmitEmpty() == 0) {
     	x86.out(SERIAL_DATA_PORT, char);
     }
 }
 
 pub fn log(str: []const u8) void {
     for (str) |char| {
-        put_char(char);
+        putChar(char);
     }
 }
