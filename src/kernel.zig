@@ -36,9 +36,13 @@ export fn _start() callconv(.naked) noreturn {
 }
 
 noinline fn kernel_main() callconv(.c) noreturn {
+	console.printStd("Initializing gdt...\n");
 	gdt.init();
+	console.printStd("Initializing isr...\n");
 	isr.init();
+	console.printStd("Initializing irq...\n");
 	irq.init();
+	console.printStd("Initializing idt...\n");
 	idt.init();
 	
 	//interrupt test
