@@ -1,4 +1,3 @@
-const std = @import("std");
 const idt = @import("idt.zig");
 const int = @import("interrupt.zig");
 const x86 = @import("../libmeow/x86.zig");

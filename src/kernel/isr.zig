@@ -1,5 +1,4 @@
 //To do add separate handlers for each isr interrupts
-const std = @import("std");
 const idt = @import("idt.zig");
 const int = @import("interrupt.zig");
 const console = @import("../libmeow/console.zig");
@@ -43,12 +42,8 @@ const exception_messages = [_][]const u8{
 };
 
 pub fn handler(reg: *int.Register) void {
-	console.printStd("\nReceived interrupt no ");
-	var buf: [32]u8 = undefined;
-	const str = std.fmt.bufPrint(&buf, "{}", .{reg.int_no}) catch return;
-	console.printStd(str);
-	console.printStd(" : ");
-	console.printStd(exception_messages[@as(usize, reg.int_no)]);
+	console.printStd("\nReceived interrupt no : ");
+	console.printStd(exception_messages[reg.int_no]);
 }
 
 pub fn init() void {
